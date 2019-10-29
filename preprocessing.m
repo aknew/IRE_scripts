@@ -4,7 +4,7 @@
 input  = load("samples.csv");
 % size(input)
 t = input(:,1);
-data = input(:,3);
+data = input(:,2);
 
 coef = 1;
 
@@ -15,33 +15,41 @@ f = abs(df) < s*coef;
 t = t(f);
 data = data(f);
 
-% find tranding
+% find trending
+threshold = 0.01;
+iter = 0;
+do
+    ++iter;
+    printf("iteration %i \n", iter)
+    % clustering values
+    [idx, centers] = kmeans (data, 3);
 
-% clustering values
-[idx, centers] = kmeans (data, 3);
+    mx = max(centers);
+    mn = min(centers);
 
-plot(t(idx==1),data(idx==1),'r.')
-hold on
-plot(t(idx==2),data(idx==2),'b.')
-plot(t(idx==3),data(idx==3),'g.')
-
-mx = max(centers);
-mn = min(centers);
-
-trandingClass = -1;
-for i = 1:length(centers)
-    if centers(i) != mn && centers(i) != mx
-        trandingClass = i;
-        break
+    trendingClass = -1;
+    for i = 1:length(centers)
+        if centers(i) != mn && centers(i) != mx
+            trendingClass = i;
+            break
+        end
     end
-end
 
-trand = data(idx==trandingClass);
-t_tr = t(idx == trandingClass);
-p = polyfit(t_tr, trand, 1);
-trand = polyval(p,t);
-plot(t, trand, 'k')
-data = data -trand;
+    trend = data(idx==trendingClass);
+    t_tr = t(idx == trendingClass);
+    p = polyfit(t_tr, trend, 1);
+    trend = polyval(p,t);
+
+
+    % plot(t(idx==1),data(idx==1),'r.')
+    % hold on
+    % plot(t(idx==2),data(idx==2),'b.')
+    % plot(t(idx==3),data(idx==3),'g.')
+    % plot(t, trend, 'k')
+    trendForce = abs(max(trend)-min(trend))
+    data = data - trend;
+until ( trendForce < threshold)
+
 
 ranges = [];
 n = 1;
