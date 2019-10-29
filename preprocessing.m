@@ -1,5 +1,5 @@
 % package loading shouldn't be needed in MatLab
-% pkg load statistics
+pkg load statistics
 
 input  = load("samples.csv");
 % size(input)
@@ -15,9 +15,10 @@ f = abs(df) < s*coef;
 t = t(f);
 data = data(f);
 
-% find trending
+% finding trend
 threshold = 0.01;
 iter = 0;
+
 do
     ++iter;
     printf("iteration %i \n", iter)
@@ -27,11 +28,15 @@ do
     mx = max(centers);
     mn = min(centers);
 
+    % finding which class is just trendind - we know from your experiment scheme that it should be in the middle
+    % alternative way - it should be the bigest class
     trendingClass = -1;
+    measurementClass = -1;
     for i = 1:length(centers)
-        if centers(i) != mn && centers(i) != mx
+        if centers(i) == mx
+            measurementClass = i
+        elseif centers(i) != mn
             trendingClass = i;
-            break
         end
     end
 
@@ -40,27 +45,40 @@ do
     p = polyfit(t_tr, trend, 1);
     trend = polyval(p,t);
 
-
-    % plot(t(idx==1),data(idx==1),'r.')
-    % hold on
-    % plot(t(idx==2),data(idx==2),'b.')
-    % plot(t(idx==3),data(idx==3),'g.')
-    % plot(t, trend, 'k')
     trendForce = abs(max(trend)-min(trend))
     data = data - trend;
-until ( trendForce < threshold)
+
+until(trendForce < threshold)
 
 
-ranges = [];
-n = 1;
+% plot(t(idx==1),data(idx==1),'r.')
+% hold on
+% plot(t(idx==2),data(idx==2),'b.')
+% plot(t(idx==3),data(idx==3),'g.')
+
+% finding intervals of classes and fixing one-point intervals
+intervals = [];
+st = 1;
 currentClass = idx(1);
 for i = 2:length(idx)
     if idx(i) == currentClass
-        ++n;
+        continue
+    elseif i+1<length(idx) && idx(i+1) == currentClass
+        idx(i) = currentClass;
     else
-        ranges = [ranges [currentClass; n]];
+        intervals = [intervals; [currentClass st i-1]];
         currentClass = idx(i);
-        n = 1;
+        st = i;
     end
 end
-ranges = [ranges [currentClass; n]];
+intervals = [intervals; [currentClass st length(idx)]];
+
+results = [];
+for i = 1:length(intervals)
+    if intervals(i,1) == measurementClass
+        dt = data(intervals(i,2):intervals(i,3));
+        results = [results; [mean(dt) std(dt) t(intervals(i,2)) t(intervals(i,3)) intervals(i,3)-intervals(i,2)]];
+    end
+end
+
+
