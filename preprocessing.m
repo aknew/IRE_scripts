@@ -9,9 +9,17 @@ data = input(:,2);
 coef = 1;
 
 % remove random outliers
-df = data(2:end) - data(1:end-1);
+df = [0; data(2:end) - data(1:end-1)];
 s = std(df);
-f = abs(df) < s*coef;
+f = abs(df(1)) < s*coef;
+for i = 2:length(df)
+    f = [f; abs(df(i-1)) < s*coef && abs(df(i)) < s*coef];
+end
+
+wrong = data(!f);
+tw = t(!f);
+plot(t,data,'b-',tw,wrong,'ro')
+
 t = t(f);
 data = data(f);
 
@@ -77,8 +85,8 @@ results = [];
 for i = 1:length(intervals)
     if intervals(i,1) == measurementClass
         dt = data(intervals(i,2):intervals(i,3));
-        results = [results; [mean(dt) std(dt) t(intervals(i,2)) t(intervals(i,3)) intervals(i,3)-intervals(i,2)]];
+        results = [results; [mean(dt) std(dt) t(intervals(i,2)) t(intervals(i,3)) intervals(i,3)-intervals(i,2)+1]];
     end
 end
 
-
+save result.csv results
