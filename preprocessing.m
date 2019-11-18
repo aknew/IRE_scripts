@@ -4,21 +4,22 @@ pkg load statistics
 input  = load("samples.csv");
 % size(input)
 t = input(:,1);
-data = input(:,2);
+data = input(:,3);
 
-coef = 1;
+coef = 1.5;
 
 % remove random outliers
-df = [0; data(2:end) - data(1:end-1)];
+df = [data(2:end) - data(1:end-1); 0];
 s = std(df);
-f = abs(df(1)) < s*coef;
+f = false;
 for i = 2:length(df)
-    f = [f; abs(df(i-1)) < s*coef && abs(df(i)) < s*coef];
+    f = [f; abs(df(i-1)) > s*coef && abs(df(i)) > s*coef];
 end
+f = !f;
 
 wrong = data(!f);
 tw = t(!f);
-plot(t,data,'b-',tw,wrong,'ro')
+plot(t,data,'b.-',tw,wrong,'ro')
 
 t = t(f);
 data = data(f);
@@ -42,7 +43,7 @@ do
     measurementClass = -1;
     for i = 1:length(centers)
         if centers(i) == mx
-            measurementClass = i
+            measurementClass = i;
         elseif centers(i) != mn
             trendingClass = i;
         end
@@ -89,4 +90,4 @@ for i = 1:length(intervals)
     end
 end
 
-save result.csv results
+save resultCh2.csv results
