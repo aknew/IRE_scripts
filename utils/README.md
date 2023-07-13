@@ -1,0 +1,1 @@
+readRigolBin.m - чтение данных с осциллографа RIGOL MSO5074. За основу взят (скрипт с mathworks.com)[https://www.mathworks.com/matlabcentral/fileexchange/11854-agilent-scope-waveform-bin-file-binary-reader], инфа о том что у RIGOL и Agilent/Keysight один формат из (wavebin)[https://github.com/sam210723/wavebin/blob/5f06745f3b339c1368fba335f81840b1c4988095/wavebin/wave.py#L79]
