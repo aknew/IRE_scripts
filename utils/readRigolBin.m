@@ -13,6 +13,8 @@ fileCookie = fread(fileId, 2, 'char'); % первые два байта/симв
 fileVersion = fread(fileId, 2, 'char'); % версия файла, у нас всегда 01
 fileSize = fread(fileId, 1, 'int32');
 nWaveforms = fread(fileId, 1, 'int32');
+fprintf("В фаиле %s %d каналов", inputFilename, nWaveforms)
+
 % проверка что это и правда данные с осцилографа, а не просто какой-то случайный файл
 fileCookie = char(fileCookie');
 if (~strcmp(fileCookie, 'RG'))
