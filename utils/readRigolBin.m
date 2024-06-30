@@ -4,7 +4,6 @@ function [t, chanels] = readRigolBin(inputFilename, verboseLog)
 %> @brief Чтение данных с осцилографа RIGOL MSO5074
 %> based on https://www.mathworks.com/matlabcentral/fileexchange/11854-agilent-scope-waveform-bin-file-binary-reader
 %>
-%> This method is static and public, with an inused (~) argument
 %> @param inputFilename имя файла, возвращает кортеж из вектора времени и каналов (матрица где в строках каналы, в столбцах - значения каналов)
 %> @param verboseLog включает подробный лог
 %> @retval t -  массив времен, chanels - каналы 

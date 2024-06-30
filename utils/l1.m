@@ -18,36 +18,13 @@
 % M2(1000-tau+1:1000)=-1;
 
 %% имя файла с данными
-fileName = "a1.bin";
-[t, ch] = readRigolBin(fileName);
+fileName = "b2";
+[t, ch] = readRigolBin([fileName ".bin"]);
 
-%% разбивка на старые каналы, если их меньше 4 соотвествующие строки нужно закомментить
-a1 = ch(:,1);
-a2 = ch(:,2);
-a3 = ch(:,3);
-a4 = ch(:,4);
-
-M1=a4; %sin(2*pi*t/T);
-M2=a4; %sin(2*pi*t/T+pi);
-meanM1=mean(M1);
-meanM2=mean(M2);
-figure(1)
-plot(t,M1,t,M2)
-L=200;
-R=zeros(2*L+1,1);
-R(L+1)=mean(M1.*M2);
-for k=1:L
-    T1=M1(k+1:end);
-    T2=M2(1:end-k);
-    x=mean(T1.*T2);
-    R(L+k+1)=x;
-end;
-for k=1:L
-    T1=M1(1:end-k);
-    T2=M2(k+1:end);
-    x=mean(T1.*T2);
-    R(L+1-k)=x;
-end;
-r=(R-meanM1*meanM2);
-figure(2)
-plot(r)
+chNumber = size(ch)(2);
+for i = 1:chNumber
+    for j = i: chNumber
+        fprintf("Processing channels %d %d\n", i, j)
+        processData(t, ch, 200, i, j, fileName);
+    end
+end
