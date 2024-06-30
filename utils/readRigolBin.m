@@ -1,10 +1,21 @@
-function [t, chanels] = readRigolBin(inputFilename)
-%% Входной параметр имя файла, возвращает кортеж из вектора времени и каналов (матрица где в строках каналы, в столбцах - значения каналов)
+function [t, chanels] = readRigolBin(inputFilename, verboseLog)
 
-% based on https://www.mathworks.com/matlabcentral/fileexchange/11854-agilent-scope-waveform-bin-file-binary-reader
+% ======================================================================
+%> @brief Чтение данных с осцилографа RIGOL MSO5074
+%> based on https://www.mathworks.com/matlabcentral/fileexchange/11854-agilent-scope-waveform-bin-file-binary-reader
+%>
+%> This method is static and public, with an inused (~) argument
+%> @param inputFilename имя файла, возвращает кортеж из вектора времени и каналов (матрица где в строках каналы, в столбцах - значения каналов)
+%> @param verboseLog включает подробный лог
+%> @retval t -  массив времен, chanels - каналы 
+% ======================================================================
 
 if (~exist(inputFilename))
     error('inputFilename missing.');
+end
+
+if nargin == 1
+    verboseLog = false;
 end
 
 fileId = fopen(inputFilename, 'r');
@@ -13,7 +24,11 @@ fileCookie = fread(fileId, 2, 'char'); % первые два байта/симв
 fileVersion = fread(fileId, 2, 'char'); % версия файла, у нас всегда 01
 fileSize = fread(fileId, 1, 'int32');
 nWaveforms = fread(fileId, 1, 'int32');
-fprintf("В фаиле %s %d каналов", inputFilename, nWaveforms)
+fprintf("В фаиле %s %d каналов\n", inputFilename, nWaveforms)
+
+if verboseLog
+    fprintf("Размер файла %d\n", fileSize)
+end
 
 % проверка что это и правда данные с осцилографа, а не просто какой-то случайный файл
 fileCookie = char(fileCookie');
@@ -46,6 +61,10 @@ for waveformIndex = 1:nWaveforms
     fseek(fileId, bytesLeft, 'cof');
     % generate time vector from xIncrement and xOrigin values
     t = (xIncrement * [0:(nPoints-1)]') + xOrigin; % допущение - все каналы имеют одинаковое время
+    if verboseLog
+        fprintf("Канал %d\n", waveformIndex);
+        fprintf("xIncrement = %d\nnPoints = %d\nxOrigin = %d\n", xIncrement, nPoints, xOrigin);
+    end
 
     for bufferIndex = 1:nWaveformBuffers
         % read waveform buffer header
@@ -70,6 +89,10 @@ for waveformIndex = 1:nWaveforms
             voltageVector(:, bufferIndex) = fread(fileId, bufferSize, '*uint8');
         end
         chanels (:, waveformIndex) = voltageVector;
+        if verboseLog
+            fprintf("bufferType = %d\n", bufferType)
+        end
     end
 end
+
 fclose(fileId);
