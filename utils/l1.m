@@ -18,7 +18,7 @@
 % M2(1000-tau+1:1000)=-1;
 
 %% имя файла с данными
-fileName = "a1.bin";
+fileName = "b2.bin";
 [t, ch] = readRigolBin(fileName);
 
 %% разбивка на старые каналы, если их меньше 4 соотвествующие строки нужно закомментить
@@ -27,12 +27,22 @@ a2 = ch(:,2);
 a3 = ch(:,3);
 a4 = ch(:,4);
 
+% начало фильтрации
+fs = 1/(t(2)-t(1)); % частота дискретизации
+f = [1e6 1.5e6];
+
+a1 = bandpass(a1, f, fs);
+a2 = bandpass(a2, f, fs);
+a3 = bandpass(a3, f, fs);
+a4 = bandpass(a4, f, fs);
+% конец фильтрации
+
 M1=a4; %sin(2*pi*t/T);
 M2=a4; %sin(2*pi*t/T+pi);
 meanM1=mean(M1);
 meanM2=mean(M2);
-figure(1)
-plot(t,M1,t,M2)
+% figure(1)
+% plot(t,M1,t,M2)
 L=200;
 R=zeros(2*L+1,1);
 R(L+1)=mean(M1.*M2);
